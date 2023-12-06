@@ -7,12 +7,12 @@ use vars qw($VERSION %IRSSI);
 
 $VERSION = "1.5";
 %IRSSI = (
-    authors     => 'Twoje Imię',
-    contact     => 'twój@email.com',
+    authors     => 'Jerzy (kofany) Dabrowski',
+    contact     => 'j@dabrowski.biz',
     name        => 'BashOrgScraper',
     description => 'Scrapuje cytaty z bash.org.pl i formatuje je dla IRC',
-    license     => 'Public Domain',
-    changed     => 'Data zmiany',
+    license     => 'GNU GPL',
+    changed     => '06.12.2023',
 );
 
 my $last_call_time = 0;

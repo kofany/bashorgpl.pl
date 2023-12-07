@@ -22,11 +22,11 @@ Irssi::signal_add('message public', 'handle_public');
 sub get_random_bash_quote {
     my $ua = LWP::UserAgent->new;
     my $response = $ua->get('http://bash.org.pl/random/');
+    my $date = "nieznana data";  # Domyślna wartość dla daty
 
     if ($response->is_success) {
         my $content = $response->decoded_content;
         my $quote_number;
-        my $date = "nieznana data";  # Domyślna wartość dla daty
 
         if ($content =~ m{<a class="qid click" href="/(\d+)/">#\d+</a>}s) {
             $quote_number = $1;  # Pobiera numer cytatu

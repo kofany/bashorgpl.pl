@@ -53,9 +53,10 @@ sub get_quote_by_number {
     my $url = "http://bash.org.pl/$quote_number/";
     my $response = $ua->get($url);
 
+    my $date = "nieznana data";  # Domyślna wartość dla daty
+
     if ($response->is_success) {
         my $content = $response->decoded_content;
-        my $date = "nieznana data";  # Domyślna wartość dla daty
 
         if ($content =~ m{<div class="right">\s*(.*?)\s*</div>}s) {
             $date = $1;  # Pobiera datę cytatu
@@ -70,8 +71,9 @@ sub get_quote_by_number {
             return ($quote, $date);
         }
     }
-    return ("Nie udało się pobrać cytatu o numerze $quote_number.", "");
+    return ("Nie udało się pobrać cytatu o numerze $quote_number.", $date);
 }
+
 
 sub send_quote_in_parts {
     my ($server, $target, $quote, $quote_number, $date) = @_;

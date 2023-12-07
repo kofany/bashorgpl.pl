@@ -5,14 +5,14 @@ use HTML::Entities;
 use Irssi;
 use vars qw($VERSION %IRSSI);
 
-$VERSION = "1.5";
+$VERSION = "1.6";
 %IRSSI = (
     authors     => 'Jerzy (kofany) Dabrowski',
     contact     => 'j@dabrowski.biz',
     name        => 'BashOrgScraper',
     description => 'Scrapuje cytaty z bash.org.pl i formatuje je dla IRC',
     license     => 'GNU GPL',
-    changed     => '06.12.2023',
+    changed     => '07.12.2023',
 );
 
 my $last_call_time = 0;
@@ -25,23 +25,23 @@ sub handle_public {
     if ($msg eq "!bash") {
         if (time - $last_call_time > $call_interval) {
             $last_call_time = time;
-            my ($quote, $quote_number) = get_random_bash_quote();
-            send_quote_in_parts($server, $target, $quote, $quote_number);
+            my ($quote, $quote_number, $date) = get_random_bash_quote();
+            send_quote_in_parts($server, $target, $quote, $quote_number, $date);
         } else {
             $server->command("msg $target Zaczekaj chwilę przed kolejnym użyciem !bash");
         }
     } elsif ($msg =~ /^!cytat (\d+)$/) {
-        # Obsługa komendy !cytat z numerem cytatu
         my $quote_number = $1;
         if (time - $last_call_time > $call_interval) {
             $last_call_time = time;
-            my $quote = get_quote_by_number($quote_number);
-            send_quote_in_parts($server, $target, $quote, $quote_number);
+            my ($quote, $date) = get_quote_by_number($quote_number);
+            send_quote_in_parts($server, $target, $quote, $quote_number, $date);
         } else {
             $server->command("msg $target Zaczekaj chwilę przed kolejnym użyciem !cytat");
         }
     }
 }
+
 sub get_quote_by_number {
     my ($quote_number) = @_;
     my $ua = LWP::UserAgent->new;
@@ -87,10 +87,11 @@ sub get_random_bash_quote {
     return ("Nie udało się pobrać cytatu.", "");
 }
 sub send_quote_in_parts {
-    my ($server, $target, $quote, $quote_number) = @_;
+    my ($server, $target, $quote, $quote_number, $date) = @_;
     my @lines = split /\n/, $quote;
 
-    $server->command("msg $target [ cytat nr: #$quote_number]"); # nagłówek
+    # Wysyłanie nagłówka z numerem i datą cytatu
+    $server->command("msg $target [ cytat nr: #$quote_number | Dodano: $date ]");
 
     foreach my $line (@lines) {
         if ($line =~ /^\s*$/) {
@@ -99,9 +100,9 @@ sub send_quote_in_parts {
         $server->command("msg $target $line");
     }
 
-    $server->command("msg $target [ url http://bash.org.pl/$quote_number/ ]"); # stopka
+    # Wysyłanie stopki z linkiem do cytatu
+    $server->command("msg $target [ url http://bash.org.pl/$quote_number/ ]");
 }
-
 
 Irssi::command_bind('bash', 'cmd_bash');
 
